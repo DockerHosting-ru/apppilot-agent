@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ${APP_ID}-postgres
+    environment:
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: nextcloud
+      POSTGRES_PASSWORD: nextcloud_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nextcloud"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nextcloud:
+    image: nextcloud:latest
+    container_name: ${APP_ID}-nextcloud
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: nextcloud
+      POSTGRES_PASSWORD: nextcloud_password
+      NEXTCLOUD_TRUSTED_DOMAINS: ${SERVER_IP}
+      NEXTCLOUD_UPDATE_CHECKER: 0
+      NEXTCLOUD_CHECK_INSTALLER: 0
+      NEXTCLOUD_APPS_INSTALL: 1
+      NEXTCLOUD_APPS_ENABLE: 1
+    ports:
+      - "${EXTERNAL_PORT}:80"
+    volumes:
+      - nextcloud_data:/var/www/html
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/status.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  nextcloud_data:
+    driver: local
+
+networks:
+  default:
+    name: ${STACK_NAME}
