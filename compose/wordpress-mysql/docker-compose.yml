@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: appliku-${APPLIKU_APP_ID}-mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=${WORDPRESS_DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - appliku-${APPLIKU_APP_ID}-network
+    command: '--default-authentication-plugin=mysql_native_password'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - appliku.app_id=${APPLIKU_APP_ID}
+      - appliku.template_id=101
+      - appliku.managed=true
+
+  wordpress:
+    image: wordpress:latest
+    container_name: appliku-${APPLIKU_APP_ID}-wordpress
+    restart: unless-stopped
+    ports:
+      - "${APPLIKU_MAIN_PORT}:80"
+    environment:
+      - WORDPRESS_DB_HOST=mysql:3306
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
+      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_CONFIG_EXTRA=${WORDPRESS_CONFIG_EXTRA:-}
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - appliku-${APPLIKU_APP_ID}-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    labels:
+      - appliku.app_id=${APPLIKU_APP_ID}
+      - appliku.template_id=101
+      - appliku.managed=true
+      - appliku.main_service=true
+
+volumes:
+  mysql_data:
+    name: appliku-${APPLIKU_APP_ID}-mysql-data
+  wordpress_data:
+    name: appliku-${APPLIKU_APP_ID}-wordpress-data
+
+networks:
+  appliku-${APPLIKU_APP_ID}-network:
+    name: appliku-${APPLIKU_APP_ID}-network
+    driver: bridge

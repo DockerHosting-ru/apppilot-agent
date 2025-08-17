@@ -1,0 +1,93 @@
+{
+  "id": "102",
+  "name": "Nextcloud с PostgreSQL",
+  "description": "Nextcloud облачное хранилище с PostgreSQL и Redis для высокой производительности",
+  "category": "storage",
+  "type": "compose",
+  "version": "1.0.0",
+  "author": "Appliku",
+  "icon": "nextcloud.png",
+  "main_port": 80,
+  "services": [
+    {
+      "name": "nextcloud",
+      "description": "Nextcloud сервер",
+      "image": "nextcloud:latest",
+      "main_service": true,
+      "ports": ["80:80"],
+      "depends_on": ["postgres", "redis"]
+    },
+    {
+      "name": "postgres",
+      "description": "База данных PostgreSQL",
+      "image": "postgres:15-alpine",
+      "main_service": false,
+      "ports": [],
+      "depends_on": []
+    },
+    {
+      "name": "redis",
+      "description": "Кэш Redis",
+      "image": "redis:7-alpine",
+      "main_service": false,
+      "ports": [],
+      "depends_on": []
+    }
+  ],
+  "environment_vars": {
+    "required": [
+      {
+        "name": "POSTGRES_PASSWORD",
+        "description": "Пароль для базы данных PostgreSQL",
+        "type": "password",
+        "default": "nextcloud_postgres_password"
+      },
+      {
+        "name": "NEXTCLOUD_ADMIN_USER",
+        "description": "Имя администратора Nextcloud",
+        "type": "string",
+        "default": "admin"
+      },
+      {
+        "name": "NEXTCLOUD_ADMIN_PASSWORD",
+        "description": "Пароль администратора Nextcloud",
+        "type": "password",
+        "default": "changeme123"
+      }
+    ],
+    "optional": [
+      {
+        "name": "NEXTCLOUD_TRUSTED_DOMAINS",
+        "description": "Доверенные домены (через пробел)",
+        "type": "string",
+        "default": "localhost"
+      }
+    ]
+  },
+  "volumes": [
+    {
+      "name": "postgres_data",
+      "description": "Данные PostgreSQL",
+      "mount_point": "/var/lib/postgresql/data"
+    },
+    {
+      "name": "nextcloud_data",
+      "description": "Файлы и данные Nextcloud",
+      "mount_point": "/var/www/html"
+    }
+  ],
+  "requirements": {
+    "min_memory": "1GB",
+    "min_disk": "5GB",
+    "recommended_memory": "4GB",
+    "recommended_disk": "50GB"
+  },
+  "documentation": {
+    "setup_url": "https://docs.nextcloud.com/server/latest/admin_manual/installation/index.html",
+    "admin_url": "http://localhost:{port}",
+    "default_credentials": {
+      "username": "admin",
+      "password": "changeme123"
+    }
+  }
+}

@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: "${APP_ID}-mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql_root_password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - wordpress-network
+    restart: unless-stopped
+    labels:
+      - "appliku.app_id=${APP_ID}"
+      - "appliku.template_id=${TEMPLATE_ID}"
+      - "appliku.managed=true"
+      - "appliku.service=mysql"
+      - "appliku.stack_name=${STACK_NAME}"
+      - "appliku.main_service=false"
+
+  wordpress:
+    image: wordpress:latest
+    container_name: "${APP_ID}-wordpress"
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress_password
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_TABLE_PREFIX: wp_
+    ports:
+      - "${EXTERNAL_PORT}:80"
+    depends_on:
+      - mysql
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - wordpress-network
+    restart: unless-stopped
+    labels:
+      - "appliku.app_id=${APP_ID}"
+      - "appliku.template_id=${TEMPLATE_ID}"
+      - "appliku.managed=true"
+      - "appliku.service=wordpress"
+      - "appliku.stack_name=${STACK_NAME}"
+      - "appliku.main_service=true"
+
+volumes:
+  mysql_data:
+    driver: local
+  wordpress_data:
+    driver: local
+
+networks:
+  wordpress-network:
+    driver: bridge

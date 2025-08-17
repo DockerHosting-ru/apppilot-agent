@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  apppilot-agent:
+    build: .
+    container_name: apppilot-agent
+    restart: unless-stopped
+    environment:
+      - API_SERVER_URL=${API_SERVER_URL:-http://31.169.124.43:8000}
+      - AGENT_ID=${AGENT_ID:-test-agent-001}
+      - JWT_TOKEN=${JWT_TOKEN}
+      - POLL_INTERVAL=${POLL_INTERVAL:-5}
+      - PORT_RANGE_START=${PORT_RANGE_START:-8001}
+      - PORT_RANGE_END=${PORT_RANGE_END:-9000}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./logs:/opt/appliku/logs
+      - ./apps:/opt/appliku/apps
+    networks:
+      - apppilot-network
+
+networks:
+  apppilot-network:
+    driver: bridge

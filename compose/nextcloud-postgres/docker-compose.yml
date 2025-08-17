@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: appliku-${APPLIKU_APP_ID}-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=nextcloud
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - appliku-${APPLIKU_APP_ID}-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nextcloud"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - appliku.app_id=${APPLIKU_APP_ID}
+      - appliku.template_id=102
+      - appliku.managed=true
+
+  redis:
+    image: redis:7-alpine
+    container_name: appliku-${APPLIKU_APP_ID}-redis
+    restart: unless-stopped
+    networks:
+      - appliku-${APPLIKU_APP_ID}-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - appliku.app_id=${APPLIKU_APP_ID}
+      - appliku.template_id=102
+      - appliku.managed=true
+
+  nextcloud:
+    image: nextcloud:latest
+    container_name: appliku-${APPLIKU_APP_ID}-nextcloud
+    restart: unless-stopped
+    ports:
+      - "${APPLIKU_MAIN_PORT}:80"
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_HOST=redis
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER:-admin}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS:-localhost}
+    volumes:
+      - nextcloud_data:/var/www/html
+    networks:
+      - appliku-${APPLIKU_APP_ID}-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      - appliku.app_id=${APPLIKU_APP_ID}
+      - appliku.template_id=102
+      - appliku.managed=true
+      - appliku.main_service=true
+
+volumes:
+  postgres_data:
+    name: appliku-${APPLIKU_APP_ID}-postgres-data
+  nextcloud_data:
+    name: appliku-${APPLIKU_APP_ID}-nextcloud-data
+
+networks:
+  appliku-${APPLIKU_APP_ID}-network:
+    name: appliku-${APPLIKU_APP_ID}-network
+    driver: bridge

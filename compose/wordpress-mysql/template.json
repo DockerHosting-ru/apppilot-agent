@@ -1,0 +1,77 @@
+{
+  "id": "101",
+  "name": "WordPress с MySQL",
+  "description": "WordPress CMS с базой данных MySQL для создания сайтов и блогов",
+  "category": "cms",
+  "type": "compose",
+  "version": "1.0.0",
+  "author": "Appliku",
+  "icon": "wordpress.png",
+  "main_port": 80,
+  "services": [
+    {
+      "name": "wordpress",
+      "description": "WordPress CMS",
+      "image": "wordpress:latest",
+      "main_service": true,
+      "ports": ["80:80"],
+      "depends_on": ["mysql"]
+    },
+    {
+      "name": "mysql",
+      "description": "База данных MySQL",
+      "image": "mysql:8.0",
+      "main_service": false,
+      "ports": [],
+      "depends_on": []
+    }
+  ],
+  "environment_vars": {
+    "required": [
+      {
+        "name": "WORDPRESS_DB_PASSWORD",
+        "description": "Пароль для базы данных WordPress",
+        "type": "password",
+        "default": "wordpress_password"
+      },
+      {
+        "name": "MYSQL_ROOT_PASSWORD",
+        "description": "Root пароль для MySQL",
+        "type": "password",
+        "default": "mysql_root_password"
+      }
+    ],
+    "optional": [
+      {
+        "name": "WORDPRESS_CONFIG_EXTRA",
+        "description": "Дополнительная конфигурация WordPress",
+        "type": "text"
+      }
+    ]
+  },
+  "volumes": [
+    {
+      "name": "mysql_data",
+      "description": "Данные MySQL",
+      "mount_point": "/var/lib/mysql"
+    },
+    {
+      "name": "wordpress_data",
+      "description": "Файлы WordPress",
+      "mount_point": "/var/www/html"
+    }
+  ],
+  "requirements": {
+    "min_memory": "512MB",
+    "min_disk": "2GB",
+    "recommended_memory": "1GB",
+    "recommended_disk": "10GB"
+  },
+  "documentation": {
+    "setup_url": "https://wordpress.org/support/article/how-to-install-wordpress/",
+    "admin_url": "http://localhost:{port}/wp-admin",
+    "default_credentials": {
+      "note": "Настройка через веб-интерфейс при первом запуске"
+    }
+  }
+}

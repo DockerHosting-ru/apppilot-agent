@@ -1,0 +1,84 @@
+{
+  "id": "100",
+  "name": "n8n с PostgreSQL",
+  "description": "n8n Automation Platform с базой данных PostgreSQL для хранения workflows и данных",
+  "category": "automation",
+  "type": "compose",
+  "version": "1.0.0",
+  "author": "Appliku",
+  "icon": "n8n.png",
+  "main_port": 5678,
+  "services": [
+    {
+      "name": "n8n",
+      "description": "Основной сервис n8n",
+      "image": "n8nio/n8n:latest",
+      "main_service": true,
+      "ports": ["5678:5678"],
+      "depends_on": ["postgres"]
+    },
+    {
+      "name": "postgres",
+      "description": "База данных PostgreSQL",
+      "image": "postgres:15-alpine",
+      "main_service": false,
+      "ports": [],
+      "depends_on": []
+    }
+  ],
+  "environment_vars": {
+    "required": [
+      {
+        "name": "POSTGRES_PASSWORD",
+        "description": "Пароль для базы данных PostgreSQL",
+        "type": "password",
+        "default": "n8n_postgres_password"
+      },
+      {
+        "name": "N8N_BASIC_AUTH_USER",
+        "description": "Имя пользователя для входа в n8n",
+        "type": "string",
+        "default": "admin"
+      },
+      {
+        "name": "N8N_BASIC_AUTH_PASSWORD",
+        "description": "Пароль для входа в n8n",
+        "type": "password",
+        "default": "changeme123"
+      }
+    ],
+    "optional": [
+      {
+        "name": "N8N_ENCRYPTION_KEY",
+        "description": "Ключ шифрования для n8n (для production)",
+        "type": "string"
+      }
+    ]
+  },
+  "volumes": [
+    {
+      "name": "postgres_data",
+      "description": "Данные PostgreSQL",
+      "mount_point": "/var/lib/postgresql/data"
+    },
+    {
+      "name": "n8n_data", 
+      "description": "Данные и настройки n8n",
+      "mount_point": "/home/node/.n8n"
+    }
+  ],
+  "requirements": {
+    "min_memory": "1GB",
+    "min_disk": "5GB",
+    "recommended_memory": "2GB",
+    "recommended_disk": "10GB"
+  },
+  "documentation": {
+    "setup_url": "https://docs.n8n.io/getting-started/installation/docker-compose/",
+    "admin_url": "http://localhost:{port}",
+    "default_credentials": {
+      "username": "admin",
+      "password": "changeme123"
+    }
+  }
+}
