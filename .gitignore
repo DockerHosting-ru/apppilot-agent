@@ -41,6 +41,10 @@ venv.bak/
 *.log
 logs/
 
+# Environment variables
+.env.local
+.env.production
+
 # Docker
 .dockerignore
 
@@ -51,3 +55,23 @@ Thumbs.db
 # AppPilot specific
 /opt/appliku/logs/
 /opt/appliku/apps/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+
+# Coverage reports
+htmlcov/
+.coverage
+.pytest_cache/
