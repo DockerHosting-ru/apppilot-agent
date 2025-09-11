@@ -1,4 +1,4 @@
-бляversion: "3.8"
+version: "3.8"
 
 services:
   appliku-agent:

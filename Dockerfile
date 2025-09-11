@@ -7,9 +7,9 @@ RUN apt-get update && apt-get install -y \
     docker-compose \
     && rm -rf /var/lib/apt/lists/*
 
-# Создание пользователя apppilot
-RUN useradd -m -s /bin/bash apppilot && \
-    usermod -aG docker apppilot
+# Создание пользователя appliku
+RUN useradd -m -s /bin/bash appliku && \
+    usermod -aG docker appliku
 
 # Создание директорий
 RUN mkdir -p /opt/appliku /opt/appliku/apps /var/log
