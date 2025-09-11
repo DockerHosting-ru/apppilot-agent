@@ -1,0 +1,21 @@
+бляversion: "3.8"
+
+services:
+  appliku-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.compose
+    container_name: appliku-agent
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/appliku/config.yml:/opt/appliku/config.yml
+      - /opt/appliku/logs:/opt/appliku/logs
+      - /root/agent/templates:/root/agent/templates
+    networks:
+      - appliku-network
+
+networks:
+  appliku-network:
