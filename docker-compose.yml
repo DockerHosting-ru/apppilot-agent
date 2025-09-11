@@ -4,7 +4,7 @@ services:
   appliku-agent:
     build:
       context: .
-      dockerfile: Dockerfile.compose
+      dockerfile: Dockerfile
     container_name: appliku-agent
     restart: unless-stopped
     env_file:
