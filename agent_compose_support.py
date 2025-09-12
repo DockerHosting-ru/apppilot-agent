@@ -33,7 +33,7 @@ class AppPilotAgent:
     """Основной рабочий AppPilot агент"""
     
     def __init__(self):
-        self.config_file = Path("/opt/appliku/config.yml")
+        self.config_file = Path("/opt/apppilot/config.yml")
         self.running = True
         self.config = {}
         self.session = requests.Session()
@@ -274,7 +274,7 @@ class AppPilotAgent:
             logger.info(f"🚀 Развертываем приложение: {app_name}")
             
             # Создаем директорию для приложения
-            app_dir = Path(f"/opt/appliku/apps/{app_id}")
+            app_dir = Path(f"/opt/apppilot/apps/{app_id}")
             app_dir.mkdir(parents=True, exist_ok=True)
             
             # Сохраняем docker-compose.yml
@@ -350,7 +350,7 @@ class AppPilotAgent:
                 logger.info(f"🔍 Автоматически назначен порт: {port}")
             
             # Создаем директорию для приложения
-            app_dir = Path(f"/opt/appliku/apps/{app_id}")
+            app_dir = Path(f"/opt/apppilot/apps/{app_id}")
             if app_dir.exists():
                 # Удаляем старую директорию если существует
                 import shutil
@@ -483,7 +483,7 @@ class AppPilotAgent:
             logger.info(f"📦 Git URL: {git_url}, ветка: {branch}")
             
             # Создаем директорию для приложения
-            app_dir = Path(f"/opt/appliku/apps/{app_id}")
+            app_dir = Path(f"/opt/apppilot/apps/{app_id}")
             if not app_dir.exists():
                 return {
                     'success': False,

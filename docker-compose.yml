@@ -1,21 +1,21 @@
 version: "3.8"
 
 services:
-  appliku-agent:
+  apppilot-agent:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: appliku-agent
+    container_name: apppilot-agent
     restart: unless-stopped
     env_file:
       - .env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/appliku/config.yml:/opt/appliku/config.yml
-      - /opt/appliku/logs:/opt/appliku/logs
+      - /opt/apppilot/config.yml:/opt/apppilot/config.yml
+      - /opt/apppilot/logs:/opt/apppilot/logs
       - /root/agent/templates:/root/agent/templates
     networks:
-      - appliku-network
+      - apppilot-network
 
 networks:
-  appliku-network:
+  apppilot-network:

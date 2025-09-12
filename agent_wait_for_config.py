@@ -33,8 +33,8 @@ class AppPilotAgentWait:
     """Агент AppPilot в режиме ожидания конфигурации"""
     
     def __init__(self):
-        self.config_file = Path("/opt/apppilot-agent/config.yml")
-        self.agent_dir = Path("/opt/apppilot-agent")
+        self.config_file = Path("/opt/apppilot/config.yml")
+        self.agent_dir = Path("/opt/apppilot")
         self.running = True
         self.config = {}
         self.config_loaded = False
