@@ -24,14 +24,11 @@ RUN pip install --no-cache-dir -r /opt/apppilot/requirements.txt
 # Установка прав
 RUN chown -R apppilot:apppilot /opt/apppilot /var/log
 
-# Переключение на пользователя apppilot
-USER apppilot
-
 # Рабочая директория
 WORKDIR /opt/apppilot
 
 # Создание конфигурационного файла (будет перезаписан при запуске)
-RUN echo "agent_id: temp-agent\ncentral_server: http://localhost:8000\nagent_token: temp-token\nvps_id: 1" > config.yml
+RUN echo "agent_id: temp-agent\ncentral_server: http://localhost:8000\nagent_token: temp-token\nvmid: 1" > config.yml
 
 # Команда запуска
 CMD ["python3", "agent.py"]

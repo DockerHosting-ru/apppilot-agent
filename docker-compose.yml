@@ -9,6 +9,7 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    user: "0:0"  # Запуск от root для доступа к Docker socket
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/apppilot/config.yml:/opt/apppilot/config.yml
