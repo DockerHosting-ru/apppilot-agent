@@ -457,7 +457,7 @@ class AppPilotAgent:
                 'appliku.app_id': app_id,
                 'appliku.type': 'git',
                 'appliku.created_by': 'apppilot-agent',
-                'appliku.vps_id': self.config['vmid'],
+                'appliku.vps_id': str(self.config['vmid']),  # Конвертируем в строку
                 'appliku.deployment_time': datetime.now().isoformat(),
                 'appliku.git_url': git_url,
                 'appliku.branch': branch,
