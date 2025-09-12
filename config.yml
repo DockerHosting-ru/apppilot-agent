@@ -2,7 +2,7 @@
 agent_id: "test-agent-001"
 central_server: "http://31.169.124.43:8000"
 agent_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LWFnZW50LTAwMSIsInR5cGUiOiJhZ2VudCIsImV4cCI6MTc1NjQxOTAwNywiaWF0IjoxNzU2MzMyNjA3fQ.KqOhqy5r87tQUIVfZWA-cr-WoHiYJQ8FU5UbLhteBcs"
-vps_id: "185.135.82.248"
+vmid: "185.135.82.248"
 
 # Настройки логирования
 log_level: "INFO"

@@ -66,7 +66,7 @@ class AppPilotAgent:
                 self.config = yaml.safe_load(f)
             
             # Проверяем обязательные поля
-            required_fields = ['agent_id', 'central_server', 'agent_token', 'vps_id']
+            required_fields = ['agent_id', 'central_server', 'agent_token', 'vmid']
             for field in required_fields:
                 if field not in self.config:
                     logger.error(f"❌ Отсутствует обязательное поле: {field}")
@@ -130,7 +130,7 @@ class AppPilotAgent:
                 'agent_id': self.config['agent_id'],
                 'agent_version': '1.0.0',
                 'system_info': {
-                    'vps_id': self.config['vps_id'],
+                    'vps_id': self.config['vmid'],
                     'status': 'online',
                     'capabilities': ['docker', 'compose', 'deploy'],
                     'timestamp': datetime.now().isoformat()
@@ -287,7 +287,7 @@ class AppPilotAgent:
                 'appliku.app_id': app_id,
                 'appliku.type': 'compose',
                 'appliku.created_by': 'apppilot-agent',
-                'appliku.vps_id': self.config['vps_id'],
+                'appliku.vps_id': self.config['vmid'],
                 'appliku.deployment_time': datetime.now().isoformat()
             }
             
@@ -428,7 +428,7 @@ class AppPilotAgent:
                 'appliku.app_id': app_id,
                 'appliku.type': 'git',
                 'appliku.created_by': 'apppilot-agent',
-                'appliku.vps_id': self.config['vps_id'],
+                'appliku.vps_id': self.config['vmid'],
                 'appliku.deployment_time': datetime.now().isoformat(),
                 'appliku.git_url': git_url,
                 'appliku.branch': branch,
@@ -916,7 +916,7 @@ pyTelegramBotAPI==4.14.0
     def get_applications_from_api(self) -> list:
         """Получение списка приложений из API сервера"""
         try:
-            url = f"{self.config['central_server']}/api2/appliku/vps/{self.config['vps_id']}/applications"
+            url = f"{self.config['central_server']}/api2/appliku/vps/{self.config['vmid']}/applications"
             
             headers = {
                 'Authorization': f'Bearer {self.config["agent_token"]}',
