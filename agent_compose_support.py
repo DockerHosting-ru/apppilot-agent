@@ -377,15 +377,39 @@ class AppPilotAgent:
             
             # Проверяем наличие Dockerfile
             dockerfile_path = app_dir / "Dockerfile"
+            logger.info(f"🔍 Проверяем наличие Dockerfile в: {dockerfile_path}")
+            
             if not dockerfile_path.exists():
                 logger.info("🔧 Dockerfile не найден, генерируем автоматически...")
                 self._generate_dockerfile(app_dir, app_type, port)
+            else:
+                logger.info("✅ Dockerfile уже существует, используем существующий")
+                # Проверяем содержимое существующего Dockerfile
+                try:
+                    with open(dockerfile_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    logger.info(f"📄 Содержимое существующего Dockerfile:\n{content}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Не удалось прочитать существующий Dockerfile: {e}")
             
             # Собираем Docker образ
             logger.info("🏗️ Собираем Docker образ...")
+            
+            # Финальная проверка Dockerfile
+            if not dockerfile_path.exists():
+                logger.error("❌ Dockerfile все еще не существует после генерации!")
+                return {
+                    'success': False,
+                    'error': 'Dockerfile was not created'
+                }
+            
             # Очищаем app_id от недопустимых символов для Docker тегов
             safe_app_id = self._sanitize_app_id(app_id)
             image_name = f"apppilot-{safe_app_id}"
+            
+            logger.info(f"🐳 Собираем образ: {image_name}")
+            logger.info(f"📁 Рабочая директория: {app_dir}")
+            
             build_result = subprocess.run(
                 ['docker', 'build', '-t', image_name, '.'],
                 capture_output=True,
@@ -395,13 +419,18 @@ class AppPilotAgent:
             )
             
             if build_result.returncode != 0:
-                logger.error(f"❌ Ошибка сборки Docker: {build_result.stderr}")
+                logger.error(f"❌ Ошибка сборки Docker (код: {build_result.returncode})")
+                logger.error(f"📄 STDOUT: {build_result.stdout}")
+                logger.error(f"📄 STDERR: {build_result.stderr}")
                 return {
                     'success': False,
-                    'error': f"Docker build failed: {build_result.stderr}"
+                    'error': f"Docker build failed: {build_result.stderr}",
+                    'stdout': build_result.stdout,
+                    'stderr': build_result.stderr
                 }
             
-            logger.info("✅ Docker образ собран")
+            logger.info("✅ Docker образ собран успешно")
+            logger.info(f"📄 STDOUT сборки: {build_result.stdout}")
             
             # Останавливаем старый контейнер если существует
             container_name = f"apppilot-{safe_app_id}"
@@ -622,6 +651,14 @@ class AppPilotAgent:
     def _generate_dockerfile(self, app_dir: Path, app_type: str, port: int = 8000):
         """Автоматическая генерация Dockerfile"""
         try:
+            logger.info(f"🔧 Генерируем Dockerfile для типа: {app_type}, порт: {port}")
+            logger.info(f"📁 Директория приложения: {app_dir}")
+            
+            # Проверяем существование директории
+            if not app_dir.exists():
+                logger.error(f"❌ Директория {app_dir} не существует")
+                raise FileNotFoundError(f"App directory {app_dir} does not exist")
+            
             dockerfile_content = ""
             
             if app_type == 'nodejs':
@@ -704,18 +741,30 @@ CMD ["nginx", "-g", "daemon off;"]
             
             # Записываем Dockerfile
             dockerfile_path = app_dir / "Dockerfile"
-            with open(dockerfile_path, 'w') as f:
+            logger.info(f"📝 Записываем Dockerfile в: {dockerfile_path}")
+            
+            with open(dockerfile_path, 'w', encoding='utf-8') as f:
                 f.write(dockerfile_content)
             
-            logger.info(f"✅ Dockerfile сгенерирован для типа: {app_type} на порту {port}")
+            # Проверяем, что файл создался
+            if dockerfile_path.exists():
+                file_size = dockerfile_path.stat().st_size
+                logger.info(f"✅ Dockerfile создан успешно! Размер: {file_size} байт")
+                logger.info(f"📄 Содержимое Dockerfile:\n{dockerfile_content}")
+            else:
+                logger.error("❌ Dockerfile не был создан!")
+                raise FileNotFoundError("Dockerfile was not created")
             
         except Exception as e:
             logger.error(f"❌ Ошибка генерации Dockerfile: {e}")
+            logger.exception("Полная трассировка ошибки:")
             raise
     
     def _find_python_main_file(self, app_dir: Path) -> str:
         """Находит главный файл Python приложения"""
         try:
+            logger.info(f"🔍 Ищем главный Python файл в: {app_dir}")
+            
             # Список возможных главных файлов в порядке приоритета
             possible_main_files = [
                 'main.py',
@@ -729,9 +778,12 @@ CMD ["nginx", "-g", "daemon off;"]
             
             # Ищем существующие файлы
             for filename in possible_main_files:
-                if (app_dir / filename).exists():
-                    logger.info(f"🔍 Найден главный файл: {filename}")
+                file_path = app_dir / filename
+                if file_path.exists():
+                    logger.info(f"✅ Найден главный файл: {filename}")
                     return filename
+                else:
+                    logger.debug(f"❌ Файл {filename} не найден")
             
             # Если не нашли стандартные файлы, ищем любой .py файл
             py_files = list(app_dir.glob("*.py"))

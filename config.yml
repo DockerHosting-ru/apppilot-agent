@@ -10,7 +10,7 @@ log_file: "/var/log/apppilot-agent.log"
 
 # Настройки Docker
 docker_socket: "/var/run/docker.sock"
-apps_directory: "/opt/appliku/apps"
+apps_directory: "/opt/apppilot/apps"
 
 # Интервалы
 check_interval: 5
